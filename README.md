@@ -113,8 +113,8 @@ Sa2VA is built on InternVL2.5 and offers:
 - Superior performance in dense object segmentation
 - Support for both image and video analysis
 
-For more information about the model, visit [ByteDance/Sa2VA-1B on Hugging Face](https://huggingface.co/ByteDance/Sa2VA-1B).
+For more information about the model, visit [Sa2VA github](https://github.com/magic-research/Sa2VA).
 
 ## License
 
-This project uses the Sa2VA-1B model which is subject to ByteDance's license terms. Please refer to the model's [license information](https://huggingface.co/ByteDance/Sa2VA-1B) for usage terms and conditions.
+This project uses the Sa2VA model which is subject to ByteDance's license terms. Please refer to the model's [license information](https://github.com/magic-research/Sa2VA) for usage terms and conditions.
