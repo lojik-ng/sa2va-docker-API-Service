@@ -122,7 +122,7 @@ def process_image():
 
         # Process input data
         image = base64_to_image(data['base64Image'])
-        text_prompts = data['prompt']
+        text_prompts = '<image> ' + data['prompt']
 
         # Prepare model inputs
         input_dict = {
