@@ -31,7 +31,7 @@ This project provides a Flask-based REST API service that utilizes ByteDance's S
 1. Clone the repository:
 ```bash
 git clone https://github.com/lojik-ng/sa2va-docker-API-Service.git
-cd sa2va
+cd sa2va-docker-API-Service
 ```
 
 2. Build the Docker image:
