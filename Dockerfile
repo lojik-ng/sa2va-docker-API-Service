@@ -1,5 +1,5 @@
 # Use NVIDIA CUDA base image
-FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
+FROM nvidia/cuda:12.5.0-runtime-ubuntu22.04
 
 # Set working directory
 WORKDIR /app
