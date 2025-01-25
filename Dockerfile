@@ -5,6 +5,7 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
+    git \
     python3 \
     python3-pip \
     python3-dev \
@@ -12,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     && rm -rf /var/lib/apt/lists/*
 
+RUN pip3 install --upgrade pip
 # Install Python packages one by one
 RUN pip3 install packaging
 RUN pip3 install ninja
@@ -30,7 +32,7 @@ RUN pip3 install peft
 RUN pip3 install Pillow
 RUN pip3 install flask
 RUN pip3 install flask-cors
-RUN pip3 -m install flash-attn --no-build-isolation
+RUN pip3 install flash-attn --no-build-isolation
 
 # Copy the application code
 COPY sa2va.py .
