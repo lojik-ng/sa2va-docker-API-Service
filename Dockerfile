@@ -1,4 +1,13 @@
-FROM python:3.11-slim
+FROM nvidia/cuda:12.4.0-runtime-ubuntu22.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=${CUDA_HOME}/bin:${PATH}
+ENV LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
+ENV PYTHONUNBUFFERED=1
+ENV TRANSFORMERS_CACHE=/app/model_cache
+ENV MODEL_PATH=ByteDance/Sa2VA-1B
 
 # Set working directory
 WORKDIR /app
@@ -13,12 +22,11 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --upgrade pip
-# Install Python packages one by one
+# RUN pip3 install --upgrade pip
+# Install Python packages with CUDA support
 RUN pip3 install packaging
 RUN pip3 install ninja
-RUN pip3 install torch
-RUN pip3 install torchvision
+RUN pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu124
 RUN pip3 install numpy
 RUN pip3 install sympy
 RUN pip3 install filelock
@@ -36,11 +44,6 @@ RUN pip3 install flash-attn --no-build-isolation
 
 # Copy the application code
 COPY sa2va.py .
-
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV TRANSFORMERS_CACHE=/app/model_cache
-ENV MODEL_PATH=ByteDance/Sa2VA-1B
 
 # Create directory for model cache
 RUN mkdir -p /app/model_cache
