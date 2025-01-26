@@ -53,7 +53,7 @@ You can customize the service using the following environment variables:
 
 Example with custom model path:
 ```bash
-docker run --gpus all -p 3303:3303 -e MODEL_PATH=ByteDance/Sa2VA-1B sa2va-service
+docker run --gpus all -p 3303:3303 -e MODEL_PATH=ByteDance/Sa2VA-1B --name sa2va-service sa2va-service
 ```
 
 ### Models:
