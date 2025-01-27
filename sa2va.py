@@ -53,7 +53,7 @@ def load_model():
         use_flash_attn=True,         # Enable Flash Attention for faster processing
         trust_remote_code=True).eval().cuda()  # Move to GPU and set to evaluation mode
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True, use_fast=False)
-    start_time = time.time()
+    start_time = datetime.now()
 
 def base64_to_image(base64_string):
     """
@@ -73,6 +73,16 @@ def base64_to_image(base64_string):
     return image
 
 @app.route('/')
+def root():
+    return jsonify({
+        'message': 'Welcome to the Sa2VA API Server',
+        'endpoints': {
+            '/health': 'GET - Health check and server status',
+            '/process': 'POST - Process image with text prompt'
+        }
+    })
+
+@app.route('/health', methods=['GET'])
 def get_uptime():
     """
     Health check endpoint that provides server status and configuration information.
@@ -85,22 +95,28 @@ def get_uptime():
         - Model path
         - API endpoint details
     """
+    global start_time
     if start_time is None:
-        return jsonify({'error': 'Service not fully initialized yet'})
+        return jsonify({
+            'status': 'error',
+            'message': 'Server not fully initialized'
+        }), 503
     
-    uptime_seconds = time.time() - start_time
-    uptime = str(timedelta(seconds=int(uptime_seconds)))
+    current_time = datetime.now()
+    uptime = current_time - start_time
+    
     return jsonify({
         'status': 'running',
-        'uptime': uptime,
-        'started_at': datetime.fromtimestamp(start_time).isoformat(),
-        'model': MODEL_PATH,
-        'endpoint': '/api',
-        'method': 'POST',
-        'params': 'base64Image, prompt'
+        'uptime': str(uptime),
+        'started_at': start_time.isoformat(),
+        'model_path': MODEL_PATH,
+        'endpoints': {
+            '/health': 'GET - Health check and server status',
+            '/process': 'POST - Process image with text prompt'
+        }
     })
 
-@app.route('/api', methods=['POST'])
+@app.route('/process', methods=['POST'])
 def process_image():
     """
     Main API endpoint for processing images with the Sa2VA model.
@@ -144,8 +160,15 @@ def process_image():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    print("Loading model into GPU...")
-    load_model()
-    print("Model loaded successfully! Starting server...")
-    # Start Flask server with threading enabled for handling multiple requests
-    app.run(host='0.0.0.0', port=3303, threaded=True)
+    try:
+        print("Loading model into GPU...")
+        load_model()
+        print("Model loaded successfully! Starting server...")
+        print("Starting Flask server on port 3303...")
+        # Important: Set threaded=True to handle multiple requests
+        app.run(host='0.0.0.0', port=3303, threaded=True, use_reloader=False)
+    except Exception as e:
+        print(f"Error starting server: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+        raise

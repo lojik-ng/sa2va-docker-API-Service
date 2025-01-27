@@ -53,7 +53,7 @@ You can customize the service using the following environment variables:
 
 Example with custom model path:
 ```bash
-docker run --gpus all -p 3303:3303 -e MODEL_PATH=ByteDance/Sa2VA-1B --name sa2va-service sa2va-service
+docker run --gpus all -p 3303:3303 -e MODEL_PATH=ByteDance/Sa2VA-1B --name sa2va sa2va
 ```
 
 ### Models:
@@ -65,44 +65,82 @@ docker run --gpus all -p 3303:3303 -e MODEL_PATH=ByteDance/Sa2VA-1B --name sa2va
 
 ## API Endpoints
 
-### 1. Status Check
+### 1. Root Endpoint
 - **URL**: `GET /`
-- **Response**: Service status, uptime, and configuration
+- **Description**: Welcome endpoint providing available API endpoints
+- **Response**:
+```json
+{
+    "message": "Welcome to the Sa2VA API Server",
+    "endpoints": {
+        "/health": "GET - Health check and server status",
+        "/process": "POST - Process image with text prompt"
+    }
+}
+```
+
+### 2. Health Check
+- **URL**: `GET /health`
+- **Description**: Service health status and configuration
+- **Response**:
 ```json
 {
     "status": "running",
     "uptime": "0:10:30",
     "started_at": "2025-01-22T23:41:56",
-    "model": "ByteDance/Sa2VA-1B",
-    "endpoint": "/api",
-    "method": "POST",
-    "params": "base64Image, prompt"
+    "model_path": "ByteDance/Sa2VA-1B",
+    "endpoints": {
+        "/health": "GET - Health check and server status",
+        "/process": "POST - Process image with text prompt"
+    }
 }
 ```
 
-### 2. Image Analysis
-- **URL**: `POST /api`
+### 3. Image Processing
+- **URL**: `POST /process`
+- **Description**: Process an image with the Sa2VA model
 - **Headers**: 
   - Content-Type: application/json
-- **Body**:
+- **Request Body**:
 ```json
 {
     "base64Image": "base64_encoded_image_string",
     "prompt": "your_analysis_prompt"
 }
 ```
+- **Response**:
+```json
+{
+    "result": "Model's response to your prompt"
+}
+```
 
 ## Testing
 
+Here's an example of how to test the API using curl:
+
 ```bash
+#!/bin/bash
+
 # Convert image to base64
 BASE64_IMAGE=$(base64 -w 0 your_image.jpg)
 
-# Send request
+# Create JSON payload file
+cat > payload.json << EOF
+{
+  "base64Image": "${BASE64_IMAGE}",
+  "prompt": "Analyze this image and describe what you see."
+}
+EOF
+
+# Send request using the JSON file
 curl -X POST \
   -H "Content-Type: application/json" \
-  -d "{\"base64Image\": \"$BASE64_IMAGE\", \"prompt\": \"Analyze this image and describe what you see.\"}" \
-  http://localhost:3303/api
+  -d @payload.json \
+  http://localhost:3303/process
+
+# Clean up
+rm payload.json
 ```
 
 ## Model Details

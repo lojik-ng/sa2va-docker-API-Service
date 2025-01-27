@@ -1,0 +1,28 @@
+
+services:
+  sa2va:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sa2va
+    container_name: sa2va
+    ports:
+      - "3303:3303"
+    environment:
+      - MODEL_PATH=ByteDance/Sa2VA-1B
+      - PYTHONUNBUFFERED=1
+      - TRANSFORMERS_CACHE=/app/model_cache
+    volumes:
+      - ./models:/app/model_cache
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+volumes:
+  model_cache:
+    driver: local

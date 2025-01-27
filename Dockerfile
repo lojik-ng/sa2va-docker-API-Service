@@ -10,34 +10,53 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-dev \
     build-essential \
-    # ninja-build \
     && rm -rf /var/lib/apt/lists/*
-
-RUN pip3 install --upgrade pip
-RUN pip3 install torch torchvision torchaudio einops timm pillow
-RUN pip3 install git+https://github.com/huggingface/transformers
-RUN pip3 install git+https://github.com/huggingface/accelerate
-RUN pip3 install git+https://github.com/huggingface/diffusers
-RUN pip3 install huggingface-hub
-RUN pip3 install sentencepiece bitsandbytes protobuf decord numpy
-RUN pip3 install flask flask-cors
-RUN pip install ninja==1.10.2.4 packaging setuptools
-RUN ls && python3 -m pip install flash-attn --no-build-isolation
-# RUN MAX_JOBS=4 pip install flash-attn --no-build-isolation
-
-# Copy the application code
-COPY sa2va.py .
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV TRANSFORMERS_CACHE=/app/model_cache
 ENV MODEL_PATH=ByteDance/Sa2VA-1B
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=${CUDA_HOME}/bin:${PATH}
+ENV LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
+
+# Upgrade pip and install Python packages
+RUN python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Install PyTorch and related packages
+RUN pip3 install --no-cache-dir torch torchvision torchaudio einops timm pillow
+
+# Install Hugging Face packages
+RUN pip3 install --no-cache-dir \
+    git+https://github.com/huggingface/transformers \
+    git+https://github.com/huggingface/accelerate \
+    git+https://github.com/huggingface/diffusers \
+    huggingface-hub
+
+# Install other dependencies
+RUN pip3 install --no-cache-dir \
+    sentencepiece \
+    bitsandbytes \
+    protobuf \
+    decord \
+    numpy \
+    flask \
+    flask-cors \
+    peft \
+    ninja==1.10.2.4 \
+    packaging
+
+# Install flash-attention
+RUN python3 -m pip install --no-cache-dir flash-attn --no-build-isolation
 
 # Create directory for model cache
 RUN mkdir -p /app/model_cache
 
+# Copy the application code
+COPY sa2va.py .
+
 # Expose the port
 EXPOSE 3303
 
-# Run the application
-CMD ["python3", "sa2va.py"]
+# Run the application with Python unbuffered output
+CMD ["python3", "-u", "sa2va.py"]
