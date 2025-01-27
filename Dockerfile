@@ -20,8 +20,7 @@ RUN pip3 install git+https://github.com/huggingface/accelerate
 RUN pip3 install git+https://github.com/huggingface/diffusers
 RUN pip3 install huggingface-hub
 RUN pip3 install sentencepiece bitsandbytes protobuf decord numpy
-RUN pip3 install flask
-RUN pip3 install flask-cors
+RUN pip3 install flask flask-cors
 RUN pip install ninja==1.10.2.4 packaging setuptools
 RUN ls && python3 -m pip install flash-attn --no-build-isolation
 # RUN MAX_JOBS=4 pip install flash-attn --no-build-isolation
